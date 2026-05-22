@@ -24,6 +24,7 @@
       context: .
       dockerfile: Dockerfile.migrate
     container_name: shorter_migrate
+    restart: no
     depends_on:
       postgres:
         condition: service_healthy
