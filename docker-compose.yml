@@ -56,7 +56,7 @@
       DB_PASSWORD: ${DB_PASSWORD}
       DB_DATABASE: ${DB_DATABASE}
     ports:
-      - "${APP_BIND_ADDRESS}:${SHORTER_LISTEN_PORT}:${SHORTER_LISTEN_PORT}"
+      - "${SHORTER_LISTEN_PORT}:${SHORTER_LISTEN_PORT}"
 
 volumes:
   postgres_data:
