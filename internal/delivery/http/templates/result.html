@@ -1,0 +1,47 @@
+﻿{{define "result"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shorter: Your short link</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+<div class="container">
+    <h1>Your Link</h1>
+    <div class="form-group">
+        <input
+                id="shortUrl"
+                type="text"
+                value="{{.ShortURL}}"
+                readonly>
+        <button id="copyBtn">
+            Copy
+        </button>
+    </div>
+    <a href="/">Go to homepage</a>
+</div>
+
+<script>
+    const input = document.getElementById("shortUrl")
+    const button = document.getElementById("copyBtn")
+
+    button.addEventListener("click", async () => {
+        try {
+            input.select()
+            await navigator.clipboard.writeText(input.value)
+            button.textContent = "Copied!"
+            setTimeout(() => {
+                button.textContent = "Copy"
+            }, 1500)
+
+        } catch (err) {
+            alert("Copy failed")
+        }
+    })
+</script>
+
+</body>
+</html>
+{{end}}

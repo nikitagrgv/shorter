@@ -1,0 +1,61 @@
+﻿services:
+  postgres:
+    image: postgres:16
+    container_name: shorter_postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      - "5433:5432" # Expose to system via 5433 port
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_DATABASE}" ]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.migrate
+    container_name: shorter_migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      [
+        "-path", "/migrations",
+        "-database",
+        "postgres://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_DATABASE}?sslmode=disable",
+        "up"
+      ]
+
+  shorter:
+    build: .
+    container_name: shorter_app
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - migrate
+    env_file:
+      - .env
+    environment:
+      SHORTER_LISTEN_PORT: ${SHORTER_LISTEN_PORT}
+      SHORTER_NODE_ID: ${SHORTER_NODE_ID}
+      SHORTER_BASE_URL: ${SHORTER_BASE_URL}
+
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASE: ${DB_DATABASE}
+    ports:
+      - "${APP_BIND_ADDRESS}:${SHORTER_LISTEN_PORT}:${SHORTER_LISTEN_PORT}"
+
+volumes:
+  postgres_data:

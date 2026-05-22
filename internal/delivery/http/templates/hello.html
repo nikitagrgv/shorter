@@ -1,0 +1,93 @@
+﻿{{define "hello"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shorter: Create short link</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="container">
+    <h1 id="title">Shorter</h1>
+    <div class="form-group">
+        <div id="errorToast" class="toast hidden"></div>
+        <input id="urlInput" type="url" placeholder="Enter your long URL">
+        <button id="shortenButton">Shorten</button>
+    </div>
+</div>
+<script>
+    const input = document.getElementById("urlInput")
+    const button = document.getElementById("shortenButton")
+    const toast = document.getElementById("errorToast")
+    const title = document.getElementById("title")
+
+    function isValidHttpUrl(string) {
+        let url;
+
+        try {
+            url = new URL(string);
+        } catch (_) {
+            return false;
+        }
+
+        return url.protocol === "http:" || url.protocol === "https:";
+    }
+
+    function showError(message) {
+        toast.textContent = message
+
+        toast.classList.remove("hidden")
+        toast.style.opacity = "1"
+
+        setTimeout(() => {
+            toast.style.opacity = "0"
+
+            setTimeout(() => {
+                toast.classList.add("hidden")
+            }, 300)
+        }, 3000)
+    }
+
+    button.addEventListener("click", async () => {
+        const url = input.value
+
+        if (!isValidHttpUrl(url)) {
+            showError("Please enter a valid URL");
+            input.focus()
+            return
+        }
+
+        try {
+            button.disabled = true
+            input.readOnly = true
+            title.textContent = "Loading..."
+
+            const response = await fetch("/api/v1/links", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    long_url: url,
+                })
+            })
+
+            if (!response.ok) {
+                throw new Error("Error: " + response.statusText)
+            }
+
+            const data = await response.json()
+
+            window.location.href = `/links/${data.code}/manage`
+        } catch (e) {
+            showError(`Error: ${e.message}`);
+        } finally {
+            button.disabled = false
+            input.readOnly = false
+            title.textContent = "Shorter"
+        }
+    })
+</script>
+</body>
+</html>
+{{end}}
