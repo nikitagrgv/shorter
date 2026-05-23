@@ -45,7 +45,7 @@ func main() {
 	fmt.Println("Database Connecting...")
 	pool, err := postgres.NewPool(context.Background(), connStr)
 	if err != nil {
-		log.Fatalf("Error: %v", err)
+		log.Fatalf("Error: %v\nConnection string: %s", err, connStr)
 	}
 
 	fmt.Println("Database Connected")
