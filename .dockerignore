@@ -4,4 +4,4 @@ tmp
 node_modules
 *.log
 Dockerfile
-docker-compose.dev.yml
+docker-compose.yml
