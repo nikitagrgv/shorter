@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"html/template"
+	"log"
 	"net/http"
 	"net/url"
 
@@ -116,6 +117,6 @@ func (h *LinkHandler) renderError(w http.ResponseWriter, data ErrorPageData) {
 
 	err := h.tmpl.ExecuteTemplate(w, "error", data)
 	if err != nil {
-		// ignore
+		log.Printf("Error executing template: %v", err)
 	}
 }
