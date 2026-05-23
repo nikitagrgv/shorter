@@ -4,7 +4,7 @@
     container_name: shorter_postgres
     restart: unless-stopped
     env_file:
-      - .env
+      - .env.dev
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -24,10 +24,12 @@
       context: .
       dockerfile: Dockerfile.migrate
     container_name: shorter_migrate
-    restart: no
+    restart: "no"
     depends_on:
       postgres:
         condition: service_healthy
+    env_file:
+      - .env.dev
     command:
       [
         "-path", "/migrations",
@@ -37,14 +39,14 @@
       ]
 
   shorter:
-    build: .
+    image: shorter-app:latest
     container_name: shorter_app
     restart: unless-stopped
     depends_on:
       - postgres
       - migrate
     env_file:
-      - .env
+      - .env.dev
     environment:
       SHORTER_LISTEN_PORT: ${SHORTER_LISTEN_PORT}
       SHORTER_NODE_ID: ${SHORTER_NODE_ID}
